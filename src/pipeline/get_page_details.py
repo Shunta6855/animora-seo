@@ -11,14 +11,6 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from src.config.config import URL_DIR, ARTICLE_DIR
 
-# Chromeドライバ設定
-options = Options()
-options.add_argument("--headless")  # ヘッドレスモード
-options.add_argument("--disable-gpu")  # GPU無効化
-options.add_argument("--no-sandbox")  # サンドボックス無効化
-options.add_argument("user-agent=Mozilla/5.0")
-driver = webdriver.Chrome(options=options)
-
 # ----------------------------------
 # URLからページの詳細を取得する関数
 # ----------------------------------
@@ -40,6 +32,16 @@ def get_page_details(keyword):
         print(f"Scraping URL: {url}")
         
         try:
+            # Chromeドライバ設定
+            options = Options()
+            options.add_argument("--headless=new")  # ヘッドレスモード
+            options.add_argument("--disable-gpu")  # GPU無効化
+            options.add_argument("--no-sandbox")  # サンドボックス無効化
+            options.add_argument("--disable-dev-shm-usage")  # /dev/shmの使用無効化
+            options.add_argument("user-agent=Mozilla/5.0")
+
+
+            driver = webdriver.Chrome(options=options)
             driver.get(url)
             time.sleep(2)  # ページが完全に読み込まれるまで待機
 
@@ -50,6 +52,9 @@ def get_page_details(keyword):
             headings = [h.get_text(strip=True) for h in soup.find_all(["h1", "h2", "h3"])]
             paragraphs = [p.get_text(strip=True) for p in soup.find_all("p")]
             content = "\n".join(headings + paragraphs)
+
+            driver.quit()
+
             scraped.append({
                 "no": row["no"],
                 "url": url,
@@ -64,8 +69,10 @@ def get_page_details(keyword):
                 "title": row["title"],
                 "content": "",
             })
-
-    driver.quit()
+            try:
+                driver.quit()
+            except:
+                pass
 
     df_scraped = pd.DataFrame(scraped)
     df_scraped.to_csv(
