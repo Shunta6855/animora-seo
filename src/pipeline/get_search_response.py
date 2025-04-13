@@ -28,6 +28,7 @@ def get_search_response(keyword):
     Args:
         keyword: The search keyword
     """
+    print(f"Start getting search response for keyword: {keyword}")
     timestamp = datetime.datetime.today().strftime("%Y%m%d %H:%M:%S")
 
     os.makedirs(DATA_DIR, exist_ok=True)
@@ -59,7 +60,7 @@ def get_search_response(keyword):
     }
     out["response"] = response
     jsonstr = json.dumps(out, ensure_ascii=False)
-    with open(os.path.join(save_response_dir, f"{keyword}_" + today + ".json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(save_response_dir, f"{keyword}_" + "response" + ".json"), "w", encoding="utf-8") as f:
         f.write(jsonstr)
 
 # ----------------------------------
@@ -69,7 +70,7 @@ def make_search_results(keyword):
     """
     Save Google search results to TSV format
     """
-    response_filename = os.path.join(DATA_DIR, "response", f"{keyword}_" + today + ".json")
+    response_filename = os.path.join(DATA_DIR, "response", f"{keyword}_" + "response" + ".json")
     with open(response_filename, "r") as response_file:
         response_tmp = json.load(response_file)
     ymd = response_tmp["snapshot_ymd"]
@@ -95,7 +96,7 @@ def make_search_results(keyword):
     os.makedirs(save_results_dir, exist_ok=True)
     df_results = pd.DataFrame(results)
     df_results.to_csv(
-        os.path.join(save_results_dir, f"{keyword}_" + today + ".tsv"), 
+        os.path.join(save_results_dir, f"{keyword}_" + "response" + ".tsv"), 
         sep="\t", index=False,
         columns=["ymd", "no", "display_link", "title", "link", "snippet"],
     )

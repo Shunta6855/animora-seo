@@ -22,15 +22,16 @@ driver = webdriver.Chrome(options=options)
 # ----------------------------------
 # URLからページの詳細を取得する関数
 # ----------------------------------
-def get_page_details(today, keyword):
+def get_page_details(keyword):
     """
     Get page details from the given URL
 
     Args:
         today: The date string in the format YYYYMMDD
     """
+    print(f"Start getting page details for keyword: {keyword}")
     os.makedirs(ARTICLE_DIR, exist_ok=True)
-    df = pd.read_csv(os.path.join(URL_DIR, f"{keyword}_{today}.tsv"), sep="\t")
+    df = pd.read_csv(os.path.join(URL_DIR, f"{keyword}_response.tsv"), sep="\t")
     scraped = []
 
     # URLを1つずつ処理
@@ -68,12 +69,11 @@ def get_page_details(today, keyword):
 
     df_scraped = pd.DataFrame(scraped)
     df_scraped.to_csv(
-        os.path.join(ARTICLE_DIR, f"{keyword}_{today}.tsv"), 
+        os.path.join(ARTICLE_DIR, f"{keyword}_articles.tsv"), 
         sep="\t", index=False,
         columns=["no", "url", "title", "content"],
     )
 
 if __name__ == "__main__":
-    today = "20250413"
     keyword = "ペットSNS"
-    get_page_details(today, keyword)
+    get_page_details(keyword)
