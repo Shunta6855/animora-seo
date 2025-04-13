@@ -59,17 +59,17 @@ def get_search_response(keyword):
     }
     out["response"] = response
     jsonstr = json.dumps(out, ensure_ascii=False)
-    with open(os.path.join(save_response_dir, "response_" + today + ".json"), "w", encoding="utf-8") as f:
+    with open(os.path.join(save_response_dir, f"{keyword}_" + today + ".json"), "w", encoding="utf-8") as f:
         f.write(jsonstr)
 
 # ----------------------------------
 # Google検索結果をtsv形式にして保存する関数
 # ----------------------------------
-def make_search_results():
+def make_search_results(keyword):
     """
     Save Google search results to TSV format
     """
-    response_filename = os.path.join(DATA_DIR, "response", "response_" + today + ".json")
+    response_filename = os.path.join(DATA_DIR, "response", f"{keyword}_" + today + ".json")
     with open(response_filename, "r") as response_file:
         response_tmp = json.load(response_file)
     ymd = response_tmp["snapshot_ymd"]
@@ -95,7 +95,7 @@ def make_search_results():
     os.makedirs(save_results_dir, exist_ok=True)
     df_results = pd.DataFrame(results)
     df_results.to_csv(
-        os.path.join(save_results_dir, "results_" + today + ".tsv"), 
+        os.path.join(save_results_dir, f"{keyword}_" + today + ".tsv"), 
         sep="\t", index=False,
         columns=["ymd", "no", "display_link", "title", "link", "snippet"],
     )
@@ -103,5 +103,5 @@ def make_search_results():
 if __name__ == "__main__":
     keyword = "ペットSNS"
     get_search_response(keyword)
-    make_search_results()
+    make_search_results(keyword)
 
