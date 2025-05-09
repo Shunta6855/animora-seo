@@ -53,7 +53,3 @@ resource "azurerm_function_app" "this" {
       type = "SystemAssigned"
     }
 }
-
-output "principal_id" {
-    value = azurerm_function_app.this.identity[0].principal_id
-}
