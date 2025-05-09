@@ -1,9 +1,15 @@
+# ---------------------------------------------------------------------------------  # 
+#                                       変数の定義                                     #
+# ---------------------------------------------------------------------------------  #
+
+# プロジェクト名
 variable "project_name" {
-  description = "プロジェクト名"
-  type        = string
+    description = "Name of the project"
+    type = string
 }
 
+# Azureのリージョン(ex: japaneast)
 variable "location" {
-  description = "Azure上のリージョン"
-  type        = string
-} 
+    description = "Azure region"
+    type = string
+}
