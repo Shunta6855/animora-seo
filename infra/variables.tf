@@ -21,11 +21,18 @@ variable "openai_sku" {
     default = "S0"
 }
 
-# Azure Ai Vision(タグ + NSFW)
+# Azure AI Vision(タグ + NSFW)
 variable "vision_sku" {
     description = "Azure AI Vision pricing tier"
     type = string
     default = "S0"
+}
+
+# Azure Bing Search ServiceのSKU
+variable "bing_sku" {
+  description = "Azure Bing Search Service pricing tier"
+  type = string
+  default = "S3"
 }
 
 # Azure AI Search ServiceのSKU
