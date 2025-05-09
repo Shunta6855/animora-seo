@@ -28,7 +28,7 @@ def main():
     keywords = keyword_df["keyword"].tolist()
 
     # 各キーワードに対して処理を実行
-    for keyword in keywords[:5]:
+    for keyword in keywords[:2]:
         print(f"Start processing keyword: {keyword}")
 
         # スクレイピングした検索上位記事のURLを取得、tsv形式にして保存
