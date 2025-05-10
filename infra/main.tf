@@ -27,7 +27,7 @@ module "cognitive" {
   key_vault_id = module.keyvault.id
   openai_sku = var.openai_sku
   vision_sku = var.vision_sku
-  bing_sku = var.bing_sku
+  kv_access_policy_self = module.keyvault.access_policy_self
 }
 
 # Azure AI Search Serviceの作成
@@ -37,6 +37,10 @@ module "search" {
   location = var.location
   resource_group_name = module.rg.name
   search_sku = var.search_sku
+  providers = {
+    azurerm = azurerm
+    azapi = azapi
+  }
 }
 
 # Azure Function Appの作成
@@ -48,7 +52,6 @@ module "function" {
   kv_name = module.keyvault.name
   openai_endpoint = module.cognitive.openai_endpoint
   vision_endpoint = module.cognitive.vision_endpoint
-  bing_endpoint = module.cognitive.bing_endpoint
   search_endpoint = module.search.search_endpoint
   depends_on = [ module.cognitive, module.search ]
 }

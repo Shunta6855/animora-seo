@@ -25,3 +25,5 @@ variable "func_principal_id" {
   description = "Principal ID of the Function App's MSI"
   type        = string
 }
+
+

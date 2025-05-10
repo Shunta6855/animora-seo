@@ -31,18 +31,24 @@ variable "openai_sku" {
 variable "vision_sku" {
     description = "Azure AI Vision pricing tier"
     type = string
-    default = "S0"
+    default = "S1"
 }
 
-# Azure Bing Search ServiceのSKU
-variable "bing_sku" {
-  description = "Azure Bing Search Service pricing tier"
-  type = string
-  default = "S3"
-}
 
 # Azure Key VaultのID
 variable "key_vault_id" {
     description = "Azure Key Vault ID"
     type = string
+}
+
+# Key Vaultのアクセスポリシー(self)
+variable "kv_access_policy_self" {
+    description = "Access policy for the Key Vault"
+    type = object({
+        id = string
+        tenant_id = string
+        object_id = string
+        application_id = string
+        secret_permissions = list(string)
+    })
 }

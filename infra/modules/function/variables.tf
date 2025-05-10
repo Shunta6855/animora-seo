@@ -36,11 +36,6 @@ variable "vision_endpoint" {
   type = string
 }
 
-# Azure Bing Search Serviceのエンドポイント
-variable "bing_endpoint" {
-  type = string
-}
-
 # Azure AI Search Serviceのエンドポイント
 variable "search_endpoint" {
   type = string

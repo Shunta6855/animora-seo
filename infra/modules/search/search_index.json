@@ -1,0 +1,17 @@
+{
+  "name": "h2-index",
+  "fields": [
+    { "name": "id", "type": "Edm.String", "key": true },
+    { "name": "heading", "type": "Edm.String", "searchable": true },
+    { "name": "content", "type": "Edm.String", "searchable": true, "analyzer": "ja.microsoft" },
+    { "name": "vector", "type": "Collection(Edm.Single)", "dimensions": 1536, "searchable": true, "vectorSearchProfile": "vector-profile-1" } 
+  ],
+  "vectorSearch": {
+    "algorithms": [
+      {
+        "name": "hnsw-1",
+        "kind": "hnsw"
+      }
+    ]
+  }
+}

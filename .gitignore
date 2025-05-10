@@ -9,3 +9,16 @@ src/config/client_secret.json
 *.pyo
 *.pyd
 **/__pycache__
+
+# Terraform
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+
+# .tfvars files
+*.tfvars
+
+# Terraform lock file
+.terraform.lock.hcl
