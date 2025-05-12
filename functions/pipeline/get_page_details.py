@@ -9,7 +9,7 @@ import time
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
-from src.config.config import URL_DIR, ARTICLE_DIR
+from functions.config.settings import URL_DIR, ARTICLE_DIR
 
 # ----------------------------------
 # URLからページの詳細を取得する関数

@@ -2,7 +2,7 @@ credentials.json
 google-ads.yaml
 data
 .env
-src/config/client_secret.json
+functions/config/client_secret.json
 
 # Pythonキャッシュ
 *.pyc

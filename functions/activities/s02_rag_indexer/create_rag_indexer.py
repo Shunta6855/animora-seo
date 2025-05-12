@@ -29,5 +29,5 @@ def upload_documents(docs: list[dict]):
             raise Exception(f"Failed to upload documents: {failed}")
         print(f"Uploaded {len(batch)} documents")
 
-
+# animora docsをインデックスとして登録することも忘れず
     
