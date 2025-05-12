@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
-import json, asyncio, backoff
+import asyncio
 from openai import AzureOpenAI
 from functions.config.settings import (
     AZURE_OPENAI_ENDPOINT,
@@ -15,6 +15,7 @@ from functions.activities.s03_draft_generator.search.client import top_chunks
 from functions.activities.s03_draft_generator.guardrail.schema import Draft, SectionAll
 from functions.activities.s03_draft_generator.guardrail.safety import safe_text
 from functions.activities.s03_draft_generator.guardrail.grounding import grounded
+from functions.activities.s03_draft_generator.generator.common import build_context, call_gpt
 
 
 # ----------------------------------
@@ -40,18 +41,15 @@ async def generate_section(h2: str, keyword: str) -> dict:
     Returns:
         dict: The generated section.
     """
-    chunks = top_chunks(f"{keyword} {h2}", k=5)
-    context_blocks = [
-        f"<doc id='{c['id']}' src='{c['url']}'>{c['content']}</doc>"
-        for c in chunks
-    ]
+    chunks = top_chunks(f"{keyword} {h2}")
+    context = build_context(chunks)
     messages = [
         GEN_DRAFT_PROMPT,
         {
             "role": "user",
             "content": (
                 f"# Keyword: {keyword}\n"
-                f"# Context: {context_blocks}\n"
+                f"# Context: {context}\n"
                 f"# H2: {h2}\n"
                 "上記の情報をもとに、記事本文をJSON形式で生成してください"
             )
@@ -59,18 +57,7 @@ async def generate_section(h2: str, keyword: str) -> dict:
     ]
 
     # 文章生成
-    @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-    async def _call():
-        resp = await client.chat.completions.create(
-            messages=messages,
-            model=OPENAI_DEPLOYMENT_NAME,
-            temperature=0.7,
-            response_format={"type": "json_object"},
-        )
-        return resp.choices[0].message.content
-    
-    raw_json = await _call()
-    section = json.loads(raw_json)
+    section = await call_gpt(client, messages, 0.7)
 
     # ---- Guardrail 1: Schema ---- # 
     SectionAll(**section)
