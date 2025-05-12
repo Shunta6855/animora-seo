@@ -3,7 +3,7 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
-import asyncio, json, backoff
+import asyncio
 from openai import AzureOpenAI
 from functions.config.settings import (
     AZURE_OPENAI_ENDPOINT,
@@ -13,10 +13,11 @@ from functions.config.settings import (
 from pydantic import ValidationError
 from functions.config.prompts import GEN_CONSTRUCTION_PROMPT
 from functions.activities.s03_draft_generator.guardrail.schema import Outline
+from functions.activities.s03_draft_generator.generator.common import build_context, call_gpt
 from functions.activities.s03_draft_generator.search.client import top_chunks
 
 # ----------------------------------
-# GPT呼び出し
+# GPTクライアントの初期化
 # ----------------------------------
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
@@ -25,27 +26,8 @@ client = AzureOpenAI(
 )
 
 # ----------------------------------
-# AI Search で取得したチャンクを1文字列に連結
-# ----------------------------------
-def _context_block(keyword: str) -> str:
-    """
-    Concatenate the chunks into a single string.
-
-    Args:
-        keyword (str): The keyword to search for.
-
-    Returns:
-        str: The concatenated string.
-    """
-    chunks = top_chunks(keyword)
-    joined = "\n".join(f"<doc id='{c['id']}'><h2>{c['heading']}</h2>{c['content']}</doc>" for c in chunks)
-    return joined[:7_000]
-
-# ----------------------------------
 # 記事構成を生成
 # ----------------------------------
-# backoff: 例外が発生したときに自動でリトライするデコレータ
-@backoff.on_exception(backoff.expo, Exception, max_tries=3)
 async def generate_outline(keyword: str) -> dict:
     """
     Generate an outline for an article based on a keyword.
@@ -56,7 +38,8 @@ async def generate_outline(keyword: str) -> dict:
     Returns:
         dict: The outline.
     """
-    context = _context_block(keyword)
+    chunks = top_chunks(keyword)
+    context = build_context(chunks)
     messages = [
         GEN_CONSTRUCTION_PROMPT,
         {
@@ -68,13 +51,7 @@ async def generate_outline(keyword: str) -> dict:
             ),
         },
     ]
-    response = await client.chat.completions.create(
-        model=OPENAI_DEPLOYMENT_NAME,
-        messages=messages,
-        temperature=0.3,
-        response_format={"type": "json_object"},
-    )
-    return json.loads(response.choices[0].message.content)
+    return await call_gpt(client, messages, 0.3)
 
 
 # ----------------------------------
