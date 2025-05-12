@@ -4,6 +4,8 @@
 
 # ライブラリのインポート
 from pathlib import Path
+import os
+from dotenv import load_dotenv, find_dotenv
 
 # ----------------------------------
 # パス設定
@@ -14,6 +16,43 @@ ARTICLE_STRUCTURE_DIR = "data/article_structure"
 ARTICLE_TEXT_DIR = "data/article_text"
 BASE_DIR = Path(__file__).resolve().parent.parent.parent # animalia-seo/
 SAVE_DIR = BASE_DIR.parent / "animalia-homepage" / "src" / "content" / "blog"
+
+# ----------------------------------
+# 機密情報の取得
+# ----------------------------------
+_ = load_dotenv(find_dotenv())
+
+# --------- Creating RAG Index --------- #
+AZURE_SEARCH_ENDPOINT = os.getenv("AZURE_SEARCH_ENDPOINT")
+AZURE_SEARCH_KEY = os.getenv("AZURE_SEARCH_KEY")
+INDEX_NAME = os.getenv("INDEX_NAME")
+
+# --------- Draft Generation --------- #
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_KEY = os.getenv("AZURE_OPENAI_KEY")
+OPENAI_DEPLOYMENT_NAME = os.getenv("OPENAI_DEPLOYMENT_NAME")
+
+# --------- Guardrails --------- #
+CS_ENDPOINT = os.getenv("AZURE_CONTENT_SAFETY_ENDPOINT")
+CS_KEY = os.getenv("AZURE_CONTENT_SAFETY_KEY")
+GROUND_ENDPOINT = CS_ENDPOINT # 同じリージョン内であれば同一
+
+# ----------------------------------
+# Animora説明文(RAG用)
+# ----------------------------------
+animora_doc = {
+    "id": "animora-doc",
+    "heading": "animora",
+    "content": (
+        "animoraは、日々のお題に沿ってペットの写真を投稿できるSNSアプリです。"
+        "このアプリは、ペットを飼っているユーザーが日々のタスクを通じて正しい飼育方法を学びつつ、"
+        "他の飼い主とのコミュニティを形成することを目的としています。"
+        "アプリの主な機能は以下の2つです:"
+        "- 画像投稿機能: ユーザーは自由にペットの写真を投稿できるほか、1日1回「登録しているペットに関するお題(タスク)」が送られ、そのテーマに沿った写真を投稿することが求められます。"
+        "- コミュニティ機能: テーマフォトコンテスト、ペット飼育に関するQ&A、散歩ルートの共有などの機能を順次実装する予定です。"
+    )
+}
+
 
 # ----------------------------------
 # プロンプト設定
