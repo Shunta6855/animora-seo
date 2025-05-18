@@ -19,7 +19,7 @@ from functions.activities.s03_draft_generator.generator.common import build_cont
 
 
 # ----------------------------------
-# GPT呼び出し
+# GPTクライアントの初期化
 # ----------------------------------
 client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
