@@ -37,6 +37,13 @@ CS_ENDPOINT = os.getenv("AZURE_CONTENT_SAFETY_ENDPOINT")
 CS_KEY = os.getenv("AZURE_CONTENT_SAFETY_KEY")
 GROUND_ENDPOINT = CS_ENDPOINT # 同じリージョン内であれば同一
 
+# --------- Image Picker --------- #
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
+AZURE_VISION_ENDPOINT = os.getenv("AZURE_VISION_ENDPOINT")
+AZURE_VISION_KEY = os.getenv("AZURE_VISION_KEY")
+TEXT_EMBEDDING_DEPLOYMENT_NAME = os.getenv("TEXT_EMBEDDING_DEPLOYMENT_NAME")
+
+
 # ----------------------------------
 # Animora説明文(RAG用)
 # ----------------------------------
