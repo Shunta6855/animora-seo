@@ -16,7 +16,7 @@ from functions.config.settings import (
     AZURE_VISION_KEY,
     UNSPLASH_ACCESS_KEY,
 )
-from functions.utils.azure_openai import _embedding
+from functions.utils.azure import _embedding
 
 # ----------------------------------
 # クライアントの初期化

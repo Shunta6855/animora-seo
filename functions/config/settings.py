@@ -15,7 +15,8 @@ ARTICLE_DIR = "data/article"
 ARTICLE_STRUCTURE_DIR = "data/article_structure"
 ARTICLE_TEXT_DIR = "data/article_text"
 BASE_DIR = Path(__file__).resolve().parent.parent.parent # animalia-seo/
-SAVE_DIR = BASE_DIR.parent / "animalia-homepage" / "src" / "content" / "blog"
+BLOG_SAVE_DIR = BASE_DIR.parent / "animora-homepage" / "src" / "content" / "blog"
+IMAGE_SAVE_DIR = BASE_DIR.parent / "animora-homepage" / "public" / "images"
 
 # ----------------------------------
 # 機密情報の取得
