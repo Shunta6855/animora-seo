@@ -6,12 +6,12 @@
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from functions.config.settings import (
-    AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_KEY, INDEX_NAME
+    AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_KEY, H2_INDEX_NAME
 )
 
 client = SearchClient(
     endpoint=AZURE_SEARCH_ENDPOINT,
-    index_name=INDEX_NAME,
+    index_name=H2_INDEX_NAME,
     credential=AzureKeyCredential(AZURE_SEARCH_KEY)
 )
 

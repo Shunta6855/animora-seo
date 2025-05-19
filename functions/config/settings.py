@@ -25,7 +25,7 @@ _ = load_dotenv(find_dotenv())
 # --------- Creating RAG Index --------- #
 AZURE_SEARCH_ENDPOINT = os.getenv("AZURE_SEARCH_ENDPOINT")
 AZURE_SEARCH_KEY = os.getenv("AZURE_SEARCH_KEY")
-INDEX_NAME = os.getenv("INDEX_NAME")
+H2_INDEX_NAME = os.getenv("H2_INDEX_NAME")
 
 # --------- Draft Generation --------- #
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")

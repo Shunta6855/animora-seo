@@ -16,7 +16,7 @@ from functions.config.settings import (
     AZURE_VISION_KEY,
     UNSPLASH_ACCESS_KEY,
 )
-
+from functions.utils.azure_openai import _embedding
 
 # ----------------------------------
 # クライアントの初期化
@@ -37,16 +37,6 @@ HEADERS = {
 }
 
 # ----------------------------------
-# テキスト埋め込みベクトルを生成する関数
-# ----------------------------------
-async def _embedding(text: str) -> list[float]:
-    emb = await embedding_client.embeddings.create(
-        model=TEXT_EMBEDDING_DEPLOYMENT_NAME,
-        input=text
-    )
-    return emb.data[0].embedding # unit-normalized -> コサイン類似度において絶対値で割る必要がない
-
-# ----------------------------------
 # コサイン類似度を計算する関数
 # ----------------------------------
 def _cosine_similarity(u: list[float], v: list[float]) -> float:
@@ -60,6 +50,7 @@ async def _safety_ok(url: str) -> bool:
     try:
         res = vision_client.analyze_image({"url": url}, ["ContentSafety"])
         max_score = max(c.severity for c in res.categories_analysis)
+        return max_score <= 3
     except Exception as e:
         return False
 
@@ -81,11 +72,12 @@ async def pick_images(keyword: str, draft_json: dict, max_images: int = 4) -> li
     # Unsplash検索
     params = {
         "query": keyword,
-        "per_page": 30,
+        "per_page": 30, # 最初に30枚取得し、フィルタリングをしていく
         "orientation": "landscape"
     }
     resp = requests.get(UNSPLASH_SEARCH_URL, params=params, headers=HEADERS, timeout=10)
     resp.raise_for_status()
+        # HTTPリクエストが失敗していないか確認するためのメソッド
     items = resp.json()["results"]
 
     # Embedding
@@ -107,6 +99,8 @@ async def pick_images(keyword: str, draft_json: dict, max_images: int = 4) -> li
                 )
             )
         results = await asyncio.gather(*tasks)
+        # aiohttp: requestsと異なり非同期でHTTP通信ができる
+        # ClientSession(): aiohttpにおける接続の管理オブジェクト
 
     for item, res in zip(items, results):
         emb, safe = res
