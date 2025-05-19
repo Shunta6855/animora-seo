@@ -22,3 +22,4 @@ functions/config/client_secret.json
 
 # Terraform lock file
 .terraform.lock.hcl
+

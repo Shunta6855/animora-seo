@@ -7,7 +7,7 @@ import os
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from functions.config.settings import (
-    AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_KEY, INDEX_NAME
+    AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_KEY, H2_INDEX_NAME
 )
 
 
@@ -17,7 +17,7 @@ from functions.config.settings import (
 def upload_documents(docs: list[dict]):
     client = SearchClient(
         endpoint=AZURE_SEARCH_ENDPOINT,
-        index_name=INDEX_NAME,
+        index_name=H2_INDEX_NAME,
         credential=AzureKeyCredential(AZURE_SEARCH_KEY)
     )
     CHUNK_SIZE = 100

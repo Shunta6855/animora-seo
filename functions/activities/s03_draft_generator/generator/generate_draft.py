@@ -15,17 +15,9 @@ from functions.activities.s03_draft_generator.search.client import top_chunks
 from functions.activities.s03_draft_generator.guardrail.schema import Draft, SectionAll
 from functions.activities.s03_draft_generator.guardrail.safety import safe_text
 from functions.activities.s03_draft_generator.guardrail.grounding import grounded
-from functions.activities.s03_draft_generator.generator.common import build_context, call_gpt
+from functions.activities.s03_draft_generator.generator.common import build_context
+from functions.utils.azure_openai import call_gpt
 
-
-# ----------------------------------
-# GPTクライアントの初期化
-# ----------------------------------
-client = AzureOpenAI(
-    api_key=AZURE_OPENAI_KEY,
-    azure_endpoint=AZURE_OPENAI_ENDPOINT,
-    azure_deployment=OPENAI_DEPLOYMENT_NAME
-)
 
 # ----------------------------------
 # 各セクションの本文生成
@@ -57,7 +49,7 @@ async def generate_section(h2: str, keyword: str) -> dict:
     ]
 
     # 文章生成
-    section = await call_gpt(client, messages, 0.7)
+    section = await call_gpt(messages, 0.7)
 
     # ---- Guardrail 1: Schema ---- # 
     SectionAll(**section)
