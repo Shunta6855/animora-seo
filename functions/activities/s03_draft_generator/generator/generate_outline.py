@@ -9,7 +9,7 @@ from functions.config.prompts import GEN_CONSTRUCTION_PROMPT
 from functions.activities.s03_draft_generator.guardrail.schema import Outline
 from functions.activities.s03_draft_generator.generator.common import build_context
 from functions.activities.s03_draft_generator.search.client import top_chunks
-from functions.utils.azure_openai import call_gpt
+from functions.utils.azure import call_gpt
 
 # ----------------------------------
 # 記事構成を生成

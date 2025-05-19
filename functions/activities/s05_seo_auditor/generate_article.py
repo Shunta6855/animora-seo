@@ -5,26 +5,16 @@
 # ライブラリのインポート
 from __future__ import annotations
 
-import json, os, re, shlex, subprocess, tempfile
-from collections import Counter
+import json, re, shlex, subprocess, tempfile
 from pathlib import Path
 from typing import Optional, Sequence
+    # Sequence: リスト、タプル、文字列などのシーケンス型
 
 import janome.tokenizer as _jt
-from azure.core.credentials import AzureKeyCredential
-from azure.search.documents import SearchClient
-from openai import AzureOpenAI
-from tenacity import retry, stop_after_attempt, wait_exponential
 from functions.config.prompts import GEN_REGENERATE_PROMPT
-from functions.utils.azure_openai import call_gpt, _embedding
+from functions.utils.azure import call_gpt
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 tokenizer = _jt.Tokenizer()
-
-# 文章の分割
-_SENT_SPLIT_RE = re.compile(r"[。！？.!?]\s*")
 
 # ----------------------------------
 # キーワード密度の分析
@@ -177,7 +167,6 @@ class SEOAuditor:
         markdown: str,
         outline: dict[str, str | list[str]],
         images: Optional[Sequence[dict[str, str]]] = None,
-        current_slug: str = "",
         do_lighthouse: bool = False,
     ) -> dict[str, object]:
         """
@@ -187,7 +176,6 @@ class SEOAuditor:
             markdown: The markdown of the article
             outline: The outline of the article
             images: The images of the article
-            current_slug: The current slug of the article
             do_lighthouse: Whether to do the lighthouse audit
 
         Returns:
