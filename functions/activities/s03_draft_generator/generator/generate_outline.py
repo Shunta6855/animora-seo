@@ -12,7 +12,7 @@ from functions.activities.s03_draft_generator.search.client import top_chunks
 from functions.utils.azure import call_gpt
 
 # ----------------------------------
-# 記事構成を生成
+# 記事構成を生成する関数
 # ----------------------------------
 async def generate_outline(keyword: str) -> dict:
     """

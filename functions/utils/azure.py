@@ -1,13 +1,19 @@
 # ライブラリのインポート
 import asyncio, json, backoff
-from functions.config.settings import OPENAI_DEPLOYMENT_NAME
 from openai import AzureOpenAI
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents import SearchClient
+from azure.ai.contentsafety import ContentSafetyClient
+from functions.config.settings import OPENAI_DEPLOYMENT_NAME
 from functions.config.settings import (
     AZURE_OPENAI_KEY,
     AZURE_OPENAI_ENDPOINT,
     TEXT_EMBEDDING_DEPLOYMENT_NAME,
     AZURE_SEARCH_ENDPOINT,
-    AZURE_SEARCH_KEY
+    AZURE_SEARCH_KEY,
+    H2_INDEX_NAME,
+    AZURE_VISION_ENDPOINT,
+    AZURE_VISION_KEY
 )
 
 # ----------------------------------
@@ -24,6 +30,17 @@ embedding_client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
     azure_endpoint=AZURE_OPENAI_ENDPOINT,
     azure_deployment=TEXT_EMBEDDING_DEPLOYMENT_NAME
+)
+
+h2_search_client = SearchClient(
+    endpoint=AZURE_SEARCH_ENDPOINT,
+    index_name=H2_INDEX_NAME,
+    credential=AzureKeyCredential(AZURE_SEARCH_KEY)
+)
+
+content_safety_client = ContentSafetyClient(
+    endpoint=AZURE_VISION_ENDPOINT,
+    credential=AzureKeyCredential(AZURE_VISION_KEY)
 )
 
 
@@ -53,7 +70,7 @@ async def call_gpt(messages: list, temperature: float) -> dict:
 # ----------------------------------
 # テキスト埋め込みベクトルを生成する関数
 # ----------------------------------
-async def _embedding(text: str) -> list[float]:
+async def embedding(text: str) -> list[float]:
     emb = await embedding_client.embeddings.create(
         model=TEXT_EMBEDDING_DEPLOYMENT_NAME,
         input=text
