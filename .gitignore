@@ -9,6 +9,7 @@ functions/config/client_secret.json
 *.pyo
 *.pyd
 **/__pycache__
+**/.pytest_cache
 
 # Terraform
 **/.terraform/*

@@ -3,31 +3,43 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
-import os
-from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
-from functions.config.settings import (
-    AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_KEY, H2_INDEX_NAME
-)
+from functions.config.settings import animora_doc
 
 
 # ----------------------------------
-# H2セクションをインデックスとして保存する関数
+# H2セクション・Animora docs をインデックスとして保存するクラス
 # ----------------------------------
-def upload_documents(docs: list[dict]):
-    client = SearchClient(
-        endpoint=AZURE_SEARCH_ENDPOINT,
-        index_name=H2_INDEX_NAME,
-        credential=AzureKeyCredential(AZURE_SEARCH_KEY)
-    )
-    CHUNK_SIZE = 100
-    for i in range(0, len(docs), CHUNK_SIZE):
-        batch = docs[i:i+CHUNK_SIZE]
-        result = client.upload_documents(documents=batch)
-        if not all(r.succeeded for r in result):
-            failed = [r.key for r in result if not r.succeeded]
-            raise Exception(f"Failed to upload documents: {failed}")
-        print(f"Uploaded {len(batch)} documents")
+class SearchUploader:
+    def __init__(self, client: SearchClient):
+        self.client = client
+        self.chunk_size = 100
 
-# animora docsをインデックスとして登録することも忘れず
+    def upload_h2_docs(self, docs: list[dict]):
+        """
+        Upload H2 docs to Azure AI Search
+
+        Args:
+            docs (list[dict]): List of H2 docs to upload
+        """
+        for i in range(0, len(docs), self.chunk_size):
+            batch = docs[i:i+self.chunk_size]
+            result = self.client.upload_documents(documents=batch)
+            if not all(r.succeeded for r in result):
+                failed = [r.key for r in result if not r.succeeded]
+                raise Exception(f"Failed to upload documents: {failed}")
+            print(f"Uploaded {len(batch)} documents")
+            
+    def upload_animora_docs(self):
+        """
+        Upload Animora docs to Azure AI Search
+
+        Args:
+            docs (list[dict]): List of Animora docs to upload
+        """
+        result = self.client.upload_documents(documents=animora_doc)
+        if not result.succeeded:
+            raise Exception(f"Failed to upload documents: {result.failed}")
+        print(f"Uploaded animora docs")
+
     

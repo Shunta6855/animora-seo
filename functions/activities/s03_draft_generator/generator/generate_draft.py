@@ -4,12 +4,6 @@
 
 # ライブラリのインポート
 import asyncio
-from openai import AzureOpenAI
-from functions.config.settings import (
-    AZURE_OPENAI_ENDPOINT,
-    AZURE_OPENAI_KEY,
-    OPENAI_DEPLOYMENT_NAME
-)
 from functions.config.prompts import GEN_DRAFT_PROMPT
 from functions.activities.s03_draft_generator.search.client import top_chunks
 from functions.activities.s03_draft_generator.guardrail.schema import Draft, SectionAll
