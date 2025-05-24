@@ -3,6 +3,10 @@ google-ads.yaml
 data
 .env
 functions/config/client_secret.json
+functions/activities/s05_seo_auditor/.lighthouseci/
+functions/local.settings.json
+
+.venv
 
 # Pythonキャッシュ
 *.pyc

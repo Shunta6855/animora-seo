@@ -36,10 +36,14 @@ def draft_to_markdown(draft: dict) -> str:
     """
     lines = [f"# {draft['title']}", ""]  # 大見出し（タイトル）
 
-    for section in draft["sections"]:
-        lines.append(f"## {section['h2']}")  # 中見出し（H2）
+    for h2 in draft["h2_list"]:
+        lines.append(f"## {h2['h2']}")  # 中見出し（H2）
         lines.append("")  # 空行
-        lines.append(section["content"])  # 本文
-        lines.append("")  # 空行（次のセクションとの間）
+        for h3, content in zip(h2["h3_list"], h2["content_list"]):
+            lines.append(f"### {h3}")
+            lines.append("")
+            lines.append(content)
+            lines.append("")
+        lines.append("")  # セクション間の余白
 
     return "\n".join(lines)
