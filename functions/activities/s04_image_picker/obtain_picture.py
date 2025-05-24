@@ -3,12 +3,12 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
-import requests, asyncio, aiohttp
+import requests
 import numpy as np
 from openai import AzureOpenAI
 from azure.ai.contentsafety import ContentSafetyClient
-from functions.config.settings import UNSPLASH_SEARCH_URL, HEADERS
-from functions.utils.azure import embedding
+from config.settings import UNSPLASH_SEARCH_URL, HEADERS
+from utils.azure import embedding
 
 
 # ----------------------------------
@@ -25,7 +25,7 @@ class ImagePicker:
         self.content_safety_client = content_safety_client
         self.similarity_threshold = similarity_threshold
 
-    async def pick_images(self, keyword: str, max_images: int = 4) -> list[dict]:
+    def pick_images(self, keyword: str, max_images: int = 4) -> list[dict]:
         """
         Pick images from Unsplash based on the keyword and the draft JSON.
         
@@ -48,31 +48,20 @@ class ImagePicker:
         items = resp.json()["results"]
 
         # Embedding
-        query_emb = await embedding(keyword)
+        query_emb = embedding(keyword)
 
         # 各画像のスコア計算 & Safetyフィルタ
         scored: list[tuple] = []
-        async with aiohttp.ClientSession() as session:
-            tasks = []
-            for item in items:
-                url = item["url"]["regular"]
-                alt = item.get("alt_description") or keyword
-                tags_text = alt + " " + " ".join(t["title"] for t in item["tags", []])
-                tasks.append(
-                    asyncio.gather(
-                        embedding(tags_text),
-                        self._safety_ok(url),
-                        return_exceptions=True
-                    )
-                )
-            results = await asyncio.gather(*tasks)
-            # aiohttp: requestsと異なり非同期でHTTP通信ができる
-            # ClientSession(): aiohttpにおける接続の管理オブジェクト
+        for item in items:
+            url = item["urls"]["regular"]
+            alt = item.get("alt_description") or keyword
+            tags = item.get("tags", [])
+            tags_text = alt + " " + " ".join(t["title"] for t in tags)
 
-        for item, res in zip(items, results):
-            emb, safe = res
-            if not safe:
+            emb = embedding(tags_text)
+            if not self._safety_ok(url):
                 continue
+
             sim = self._cosine_similarity(query_emb, emb)
             if sim >= self.similarity_threshold:
                 scored.append((sim, item))
@@ -90,13 +79,13 @@ class ImagePicker:
             for _, item in selected
         ]
     
-    async def _cosine_similarity(self, u: list[float], v: list[float]) -> float:
+    def _cosine_similarity(self, u: list[float], v: list[float]) -> float:
         """
         Calculate the cosine similarity between two vectors.
         """
         return float(np.dot(u, v))
 
-    async def _safety_ok(self, url: str) -> bool:
+    def _safety_ok(self, url: str) -> bool:
         """
         Check if the image is safe.
         """

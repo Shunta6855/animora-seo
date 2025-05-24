@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Optional, Sequence, Any
     # Sequence: リスト、タプル、文字列などのシーケンス型
 
-from functions.activities.s05_seo_auditor.keyword_density import ensure_keyword_density
-from functions.activities.s05_seo_auditor.meta_generator import gen_meta
-from functions.activities.s05_seo_auditor.lighthouse_runner import run_lighthouse
+from activities.s05_seo_auditor.keyword_density import ensure_keyword_density
+from activities.s05_seo_auditor.meta_generator import gen_meta
+from activities.s05_seo_auditor.lighthouse_runner import run_lighthouse
 
 
 # ----------------------------------
@@ -31,12 +31,12 @@ class SEOAuditor:
     # ----------------------------------
     # 記事の生成
     # ----------------------------------
-    async def audit(
+    def audit(
         self,
         markdown: str,
-        outline: dict[str, str | list[str]],
+        outline: dict[str, Any],
         images: Optional[Sequence[dict[str, str]]] = None,
-        do_lighthouse: bool = False,
+        do_lighthouse: bool = True,
     ) -> dict[str, object]:
         """
         Audit the article.
@@ -50,7 +50,7 @@ class SEOAuditor:
         Returns:
             The result of the audit
         """
-        markdown, density = await ensure_keyword_density(markdown, self.keyword, self.MIN_DENSITY)
+        markdown, density = ensure_keyword_density(markdown, self.keyword, self.MIN_DENSITY)
         title, description = gen_meta(outline, markdown)
 
         lighthouse_metrics: dict[str, float] | None = None

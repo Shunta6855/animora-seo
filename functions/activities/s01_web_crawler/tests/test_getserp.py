@@ -1,7 +1,7 @@
 # ライブラリのインポート
 import pytest, json
 from unittest.mock import patch, MagicMock
-from functions.activities.s01_web_crawler.get_serp import GoogleSearcher
+from activities.s01_web_crawler.get_serp import GoogleSearcher
 
 # ----------------------------------
 # テストケースの定義

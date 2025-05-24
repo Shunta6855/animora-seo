@@ -2,7 +2,7 @@
 import pytest, uuid
 from unittest.mock import patch, MagicMock, mock_open
 from bs4 import BeautifulSoup
-from functions.activities.s01_web_crawler.scraper import ArticleScraper
+from activities.s01_web_crawler.scraper import ArticleScraper
 
 
 # ----------------------------------

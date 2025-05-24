@@ -5,7 +5,7 @@
 # ライブラリのインポート
 from azure.ai.contentsafety import ContentSafetyClient
 from azure.core.credentials import AzureKeyCredential
-from functions.config.settings import CS_ENDPOINT, CS_KEY
+from config.settings import CS_ENDPOINT, CS_KEY
 
 client = ContentSafetyClient(
     endpoint=CS_ENDPOINT,

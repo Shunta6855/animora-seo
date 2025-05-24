@@ -5,7 +5,7 @@
 # ライブラリのインポート
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
-from functions.config.settings import (
+from config.settings import (
     AZURE_SEARCH_ENDPOINT, AZURE_SEARCH_KEY, H2_INDEX_NAME
 )
 
@@ -22,6 +22,7 @@ def top_chunks(query: str, k: int = 5) -> list[dict]:
     results = client.search(
         search_text=query,
         query_type="semantic",
+        semantic_configuration_name="default",
         select=["id", "heading", "content"],
         top=k,
     )
