@@ -4,7 +4,7 @@
 
 # ライブラリのインポート
 from azure.search.documents import SearchClient
-from functions.config.settings import animora_doc
+from config.settings import animora_doc
 
 
 # ----------------------------------
@@ -38,8 +38,9 @@ class SearchUploader:
             docs (list[dict]): List of Animora docs to upload
         """
         result = self.client.upload_documents(documents=animora_doc)
-        if not result.succeeded:
-            raise Exception(f"Failed to upload documents: {result.failed}")
-        print(f"Uploaded animora docs")
+        if not all(r.succeeded for r in result):
+            failed_keys = [r.key for r in result if not r.succeeded]
+            raise Exception(f"Failed to upload animora docs: {failed_keys}")
+        print(f"Uploaded {len(result)} animora docs")
 
     

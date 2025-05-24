@@ -17,7 +17,7 @@ class Section(BaseModel):
 
 class Outline(BaseModel):
     title: str = Field(..., max_length=32)
-    h2_list: Annotated[Section, Field(min_items=3, max_items=6)]
+    h2_list: Annotated[list[Section], Field(min_items=3, max_items=6)]
     class Config:
         extra = "forbid"
 

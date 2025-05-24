@@ -3,25 +3,26 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
-import asyncio
-from functions.config.prompts import GEN_DRAFT_PROMPT
-from functions.activities.s03_draft_generator.search.client import top_chunks
-from functions.activities.s03_draft_generator.guardrail.schema import Draft, SectionAll
-from functions.activities.s03_draft_generator.guardrail.safety import safe_text
-from functions.activities.s03_draft_generator.guardrail.grounding import grounded
-from functions.activities.s03_draft_generator.generator.common import build_context
-from functions.utils.azure import call_gpt
+import json
+from config.prompts import GEN_DRAFT_PROMPT
+from activities.s03_draft_generator.search.client import top_chunks
+from activities.s03_draft_generator.guardrail.schema import Draft, SectionAll, Section
+from activities.s03_draft_generator.guardrail.safety import safe_text
+from activities.s03_draft_generator.guardrail.grounding import grounded
+from activities.s03_draft_generator.generator.common import build_context, draft_to_markdown
+from utils.azure import call_gpt
 
 
 # ----------------------------------
 # 各セクションの本文生成
 # ----------------------------------
-async def generate_section(h2: str, keyword: str) -> dict:
+def generate_section(h2: str, h3_list: list[str], keyword: str) -> dict:
     """
     Generate a section of an article based on a keyword and a context.
 
     Args:
         h2 (str): The heading of the section.
+        h3_list (list[str]): The list of subheadings for the section.
         keyword (str): The keyword to generate the section for.
 
     Returns:
@@ -37,13 +38,14 @@ async def generate_section(h2: str, keyword: str) -> dict:
                 f"# Keyword: {keyword}\n"
                 f"# Context: {context}\n"
                 f"# H2: {h2}\n"
+                f"# H3_list: {json.dumps(h3_list, ensure_ascii=False)}\n"
                 "上記の情報をもとに、記事本文をJSON形式で生成してください"
             )
         }
     ]
 
     # 文章生成
-    section = await call_gpt(messages, 0.7)
+    section = call_gpt(messages, 0.7)
 
     # ---- Guardrail 1: Schema ---- # 
     SectionAll(**section)
@@ -61,22 +63,32 @@ async def generate_section(h2: str, keyword: str) -> dict:
 # ----------------------------------
 # 記事本文の生成
 # ----------------------------------
-async def generate_draft(keyword: str, outline: list[str]) -> dict:
+def generate_draft(keyword: str, title: str, h2_list: list[Section]) -> dict:
     """
     Generate a draft of an article based on a keyword and outline.
 
     Args:
         keyword (str): The keyword to generate the article for.
-        outline (list[str]): The outline of the article.
+        title (str): The title of the article.
+        h2_list (list[Section]): The list of sections for the article.
 
     Returns:
-        dict: The generated draft.
+        str(markdown): The generated draft.
     """
-    tasks = [generate_section(h2, keyword) for h2 in outline]
-    sections = await asyncio.gather(*tasks)
-    draft = {"title": outline[0], "sections": sections}
+    # dict -> Section オブジェクトに変換
+    h2_list = [Section(**section_dict) for section_dict in h2_list]
+
+    sections = []
+    for section in h2_list:
+        sec = generate_section(section.h2, section.h3_list, keyword)
+        sections.append(sec)
+
+    draft_dict = {"title": title, "sections": sections}
 
     # Final Guardrail: Schema
-    Draft(**draft)
+    Draft(**draft_dict)
+
+    # Convert to Markdown
+    draft = draft_to_markdown(draft_dict)
 
     return draft

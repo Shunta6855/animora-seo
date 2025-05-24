@@ -4,7 +4,7 @@
 
 # ライブラリのインポート
 import requests
-from functions.config.settings import GROUND_ENDPOINT, CS_KEY
+from config.settings import GROUND_ENDPOINT, CS_KEY
 
 # ----------------------------------
 # 引用ソースに基づいているかをチェックする関数
@@ -20,15 +20,16 @@ def grounded(text: str, citations: list[str]) -> bool:
     Returns:
         bool: True if the text is grounded in the citations, False otherwise.
     """
-    url = f"{GROUND_ENDPOINT}/groundedness/detect?api-version=2024-09-15-preview"
+    url = f"{GROUND_ENDPOINT}contentsafety/text:detectGroundedness?api-version=2024-09-15-preview"
     headers = {
         "Content-Type": "application/json",
         "Ocp-Apim-Subscription-Key": CS_KEY
     }
     body = {
         "text": text,
-        "citations": citations
+        "groundingSources": citations
     }
     res = requests.post(url, headers=headers, json=body, timeout=30)
     res.raise_for_status()
     return not res.json()["ungroundedDetected"] 
+

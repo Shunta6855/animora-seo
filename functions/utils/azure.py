@@ -1,11 +1,11 @@
 # ライブラリのインポート
-import asyncio, json, backoff
+import json, backoff
 from openai import AzureOpenAI
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents import SearchClient
 from azure.ai.contentsafety import ContentSafetyClient
-from functions.config.settings import OPENAI_DEPLOYMENT_NAME
-from functions.config.settings import (
+from config.settings import OPENAI_DEPLOYMENT_NAME
+from config.settings import (
     AZURE_OPENAI_KEY,
     AZURE_OPENAI_ENDPOINT,
     TEXT_EMBEDDING_DEPLOYMENT_NAME,
@@ -13,7 +13,8 @@ from functions.config.settings import (
     AZURE_SEARCH_KEY,
     H2_INDEX_NAME,
     AZURE_VISION_ENDPOINT,
-    AZURE_VISION_KEY
+    AZURE_VISION_KEY,
+    OPENAI_API_VERSION
 )
 
 # ----------------------------------
@@ -23,13 +24,15 @@ from functions.config.settings import (
 gpt_client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
     azure_endpoint=AZURE_OPENAI_ENDPOINT,
-    azure_deployment=OPENAI_DEPLOYMENT_NAME
+    azure_deployment=OPENAI_DEPLOYMENT_NAME,
+    api_version=OPENAI_API_VERSION,
 )
 
 embedding_client = AzureOpenAI(
     api_key=AZURE_OPENAI_KEY,
     azure_endpoint=AZURE_OPENAI_ENDPOINT,
-    azure_deployment=TEXT_EMBEDDING_DEPLOYMENT_NAME
+    azure_deployment=TEXT_EMBEDDING_DEPLOYMENT_NAME,
+    api_version=OPENAI_API_VERSION,
 )
 
 h2_search_client = SearchClient(
@@ -49,7 +52,7 @@ content_safety_client = ContentSafetyClient(
 # ----------------------------------
 # backoff: 例外が発生したときに自動でリトライするデコレータ
 @backoff.on_exception(backoff.expo, Exception, max_tries=3)
-async def call_gpt(messages: list, temperature: float) -> dict:
+def call_gpt(messages: list, temperature: float) -> dict:
     """
     Call GPT with the given messages.
 
@@ -59,7 +62,7 @@ async def call_gpt(messages: list, temperature: float) -> dict:
     Returns:
         dict: The response from GPT.
     """
-    response = await gpt_client.chat.completions.create(
+    response = gpt_client.chat.completions.create(
         model=OPENAI_DEPLOYMENT_NAME,
         messages=messages,
         temperature=temperature,
@@ -70,8 +73,8 @@ async def call_gpt(messages: list, temperature: float) -> dict:
 # ----------------------------------
 # テキスト埋め込みベクトルを生成する関数
 # ----------------------------------
-async def embedding(text: str) -> list[float]:
-    emb = await embedding_client.embeddings.create(
+def embedding(text: str) -> list[float]:
+    emb = embedding_client.embeddings.create(
         model=TEXT_EMBEDDING_DEPLOYMENT_NAME,
         input=text
     )

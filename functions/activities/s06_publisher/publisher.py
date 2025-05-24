@@ -10,15 +10,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Sequence
 
-from functions.config.settings import BLOG_SAVE_DIR, IMAGE_SAVE_DIR
+from config.settings import BLOG_SAVE_DIR, IMAGE_SAVE_DIR
 
 # ----------------------------------
 # メインクラス
 # ----------------------------------
 class Publisher:
 
-    def __init__(self, container_url: str | None = None) -> None:
-        self.container_url = container_url
+    def __init__(self) -> None:
+        pass
 
     # ----------------------------------
     # エントリポイント

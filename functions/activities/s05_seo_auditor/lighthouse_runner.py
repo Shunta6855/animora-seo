@@ -11,6 +11,7 @@ def run_lighthouse(html_path: Path, lh_root: Path) -> dict[str, float]:
 
     Args:
         html_path: The path to the HTML file
+        lh_root: The directory where the Lighthouse project is created
 
     Returns:
         The result of Lighthouse(dict of score)

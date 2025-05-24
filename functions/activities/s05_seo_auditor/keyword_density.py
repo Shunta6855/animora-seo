@@ -1,8 +1,8 @@
 
 # ライブラリのインポート
 import janome.tokenizer as _jt
-from functions.config.prompts import GEN_REGENERATE_PROMPT
-from functions.utils.azure import call_gpt
+from config.prompts import GEN_REGENERATE_PROMPT
+from utils.azure import call_gpt
 
 tokenizer = _jt.Tokenizer()
 
@@ -37,7 +37,7 @@ def _analyze_keyword_density(text: str, keyword: str) -> tuple[int, int, float]:
 # ----------------------------------
 # キーワード不足の文章についてキーワードを含めつつ再生成
 # ----------------------------------
-async def _regenerate_with_keyword(text: str, keyword: str) -> str:
+def _regenerate_with_keyword(text: str, keyword: str) -> str:
     """
     Regenerate the text with the keyword.
     
@@ -59,15 +59,15 @@ async def _regenerate_with_keyword(text: str, keyword: str) -> str:
             )
         }
     ]
-    response = await call_gpt(messages, 0.7)
+    response = call_gpt(messages, 0.7)
     return response["text"]
 
 # ----------------------------------
 # キーワード密度の確認
 # ----------------------------------
-async def ensure_keyword_density(text: str, keyword: str, min_density: float=0.01) -> tuple[str, float]:
+def ensure_keyword_density(text: str, keyword: str, min_density: float=0.01) -> tuple[str, float]:
     _, _, ratio = _analyze_keyword_density(text, keyword)
     if ratio < min_density:
-        text = await _regenerate_with_keyword(text, keyword)
+        text = _regenerate_with_keyword(text, keyword)
         _, _, ratio = _analyze_keyword_density(text, keyword)
     return text, ratio
