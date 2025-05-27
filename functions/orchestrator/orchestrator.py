@@ -41,7 +41,7 @@ def orchestrator(context: df.DurableOrchestrationContext) -> Generator[Any, Any,
     
     # 3. Upload chunks to Azure AI Search
     _ = yield context.call_activity("ac_upload_chunks", {
-        "cache_path": Path("data/uploaded_ids") / f"{keyword}.json",
+        "cache_path": str(Path("data/uploaded_ids") / f"{keyword}.json"),
         "titles": titles,
         "docs": docs,
     })

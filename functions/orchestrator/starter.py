@@ -14,9 +14,14 @@ async def run_pipeline(
     req: func.HttpRequest, 
     client: df.DurableOrchestrationClient
 ) -> func.HttpResponse:
-    # JSON ボディ or クエリ文字列からキーワード取得
-    keyword = req.params.get("keyword")
-    slug = req.params.get("slug")
+    # JSON ボディからキーワードと slug取得
+    try:
+        body = req.get_json()
+        keyword = body.get("keyword")
+        slug = body.get("slug")
+    except ValueError:
+        return func.HttpResponse("Invalid JSON", status_code=400)
+
     if not keyword:
         return func.HttpResponse("keyword missing", status_code=400)
     if not slug:
