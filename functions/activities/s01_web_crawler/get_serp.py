@@ -34,6 +34,12 @@ class GoogleSearcher:
         Returns:
             Search results in JSON format
         """
+        save_path = self.response_dir / f"{keyword}_response.json"
+        if save_path.exists():
+            print(f"Loading cached response from {save_path}")
+            with open(save_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        
         # 上位10件の検索結果を取得
         try:
             sleep(1)
@@ -61,6 +67,10 @@ class GoogleSearcher:
             response: The search results
         """
         save_path = self.response_dir / f"{keyword}_response.json"
+        if save_path.exists():
+            print(f"File already exists: {save_path}")
+            return save_path
+
         with open(save_path, "w", encoding="utf-8") as f:
             json.dump(response, f, ensure_ascii=False)
         return save_path

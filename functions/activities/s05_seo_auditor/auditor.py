@@ -5,7 +5,7 @@
 # ライブラリのインポート
 from __future__ import annotations
 
-import tempfile, markdown
+import tempfile, markdown, json
 from pathlib import Path
 from typing import Optional, Sequence, Any
     # Sequence: リスト、タプル、文字列などのシーケンス型
@@ -50,6 +50,12 @@ class SEOAuditor:
         Returns:
             The result of the audit
         """
+        audit_file = Path("data/articles") / f"{self.keyword}.json"
+        if audit_file.exists():
+            print(f"Audit already exists: {audit_file}")
+            with open(audit_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        
         markdown_text, density = ensure_keyword_density(markdown_text, self.keyword, self.MIN_DENSITY)
         title, description = gen_meta(outline, markdown_text)
 
@@ -62,14 +68,19 @@ class SEOAuditor:
                 html_path = Path(tmpdir) / "index.html"
                 html_path.write_text(full_html, encoding="utf-8")
                 lighthouse_metrics = run_lighthouse(html_path, self.lh_root)
-
-        return {
+        
+        audit_data = {
             "markdown": markdown_text,
             "images": images or [],
             "meta": {"title": title, "description": description},
             "keyword_density": density,
             "lighthouse": lighthouse_metrics,
         }
+        
+        with open(audit_file, "w", encoding="utf-8") as f:
+            json.dump(audit_data, f, ensure_ascii=False, indent=2)
+
+        return audit_data
     
     # ----------------------------------
     # html形式でラップする関数

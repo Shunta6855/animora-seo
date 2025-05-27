@@ -29,6 +29,20 @@ class ArticleScraper:
         Returns:
             A list of dictionaries containing the section title and content
         """
+        title_file = Path("data/titles") / f"{keyword}.json"
+        if title_file.exists():
+            print(f"Titles already exists: {title_file}")
+            with open(title_file, "r", encoding="utf-8") as f:
+                titles = json.load(f)
+
+        doc_file = Path("data/docs") / f"{keyword}.json"
+        if doc_file.exists():
+            print(f"Docs already exists: {doc_file}")
+            with open(doc_file, "r", encoding="utf-8") as f:
+                docs = json.load(f)
+        if titles and docs:
+            return titles, docs
+        
         response_filename = self.response_dir / f"{keyword}_response.json"
         with open(response_filename, "r") as response_file:
             response = json.load(response_file)
@@ -64,7 +78,20 @@ class ArticleScraper:
                             })
                     finally:
                         driver.quit()
-            return titles, docs
+
+        # タイトルを保存
+        title_path = Path("data/titles")
+        title_path.mkdir(parents=True, exist_ok=True)
+        with open(title_path / f"{keyword}.json", "w", encoding="utf-8") as f:
+            json.dump(titles, f, ensure_ascii=False, indent=2)
+
+        # H2-本文を保存
+        doc_path = Path("data/docs")
+        doc_path.mkdir(parents=True, exist_ok=True)
+        with open(doc_path / f"{keyword}.json", "w", encoding="utf-8") as f:
+            json.dump(docs, f, ensure_ascii=False, indent=2)
+
+        return titles, docs
     
     def _init_driver(self) -> webdriver.Chrome:
         """

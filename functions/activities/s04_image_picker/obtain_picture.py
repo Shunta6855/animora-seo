@@ -3,8 +3,9 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
-import requests
+import requests, json
 import numpy as np
+from pathlib import Path
 from openai import AzureOpenAI
 from azure.ai.contentsafety import ContentSafetyClient
 from config.settings import UNSPLASH_SEARCH_URL, HEADERS
@@ -36,6 +37,12 @@ class ImagePicker:
         Returns:
             A list of dictionaries containing the image URL and the caption
         """
+        image_file = Path("data/images") / f"{keyword}.json"
+        if image_file.exists():
+            print(f"Image already exists: {image_file}")
+            with open(image_file, "r", encoding="utf-8") as f:
+                return json.load(f)
+        
         # Unsplash検索
         params = {
             "query": keyword,
@@ -71,7 +78,7 @@ class ImagePicker:
         selected = scored[:max_images]
         print(f"Selected: {selected}")
 
-        return [
+        images = [
             {
                 "url": item["urls"]["regular"],
                 "alt": item.get("alt_description") or keyword,
@@ -79,6 +86,11 @@ class ImagePicker:
             }
             for _, item in selected
         ]
+
+        with open(image_file, "w", encoding="utf-8") as f:
+            json.dump(images, f, ensure_ascii=False, indent=2)
+
+        return images
     
     def _cosine_similarity(self, u: list[float], v: list[float]) -> float:
         """

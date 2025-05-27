@@ -28,7 +28,7 @@ class SearchUploader:
     def __init__(self, client: SearchClient, cache_path: Path):
         self.client = client
         self.chunk_size = 100
-        self.cache_path = cache_path
+        self.cache_path = Path(cache_path)
         self.uploaded_ids = self._load_uploaded_ids()
 
     def _load_uploaded_ids(self) -> set[str]:

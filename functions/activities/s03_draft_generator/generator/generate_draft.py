@@ -4,6 +4,7 @@
 
 # ライブラリのインポート
 import json
+from pathlib import Path
 from config.prompts import GEN_INTRO_PROMPT, GEN_DRAFT_PROMPT
 from activities.s03_draft_generator.search.client import top_h2_chunks
 from activities.s03_draft_generator.guardrail.schema import Draft, SectionAll, Section
@@ -112,6 +113,11 @@ def generate_draft(keyword: str, intro: str, title: str, h2_list: list[Section])
     Returns:
         str(markdown): The generated draft.
     """
+    draft_file = Path("data/drafts") / f"{keyword}.md"
+    if draft_file.exists():
+        print(f"Draft already exists: {draft_file}")
+        return draft_file.read_text()
+    
     # dict -> Section オブジェクトに変換
     h2_list = [Section(**section_dict) for section_dict in h2_list]
 
@@ -128,5 +134,8 @@ def generate_draft(keyword: str, intro: str, title: str, h2_list: list[Section])
 
     # Convert to Markdown
     draft = draft_to_markdown(draft_dict, intro)
+
+    with open(draft_file, "w", encoding="utf-8") as f:
+        f.write(draft)
 
     return draft
