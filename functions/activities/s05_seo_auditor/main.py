@@ -31,6 +31,7 @@ if __name__ == "__main__":
     auditor = SEOAuditor(keyword)
     article = auditor.audit(markdown, outline, images)
 
+    os.makedirs(article_path.parent, exist_ok=True)
     with open(article_path, "w", encoding="utf-8") as f:
         json.dump(article, f, ensure_ascii=False, indent=2)
     

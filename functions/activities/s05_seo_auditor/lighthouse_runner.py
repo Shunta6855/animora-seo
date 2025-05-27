@@ -31,13 +31,19 @@ def run_lighthouse(html_path: Path, lh_root: Path) -> dict[str, float]:
         manifest_path = Path(fp.name)
 
     # lhci autorun: Lighthouseの設定ファイルを読み込んで、パフォーマンス監査を実行
-    cmd = f"lhci autorun --config={shlex.quote(str(manifest_path))} --upload.target=filesystem"
+    report_dir = lh_root / ".lighthouseci"
+    report_dir.mkdir(exist_ok=True)
+    cmd = (
+        f"lhci autorun "
+        f"--config={shlex.quote(str(manifest_path))} "
+        f"--upload.target=filesystem "
+        f"--upload.outputDir={shlex.quote(str(report_dir))}"
+    )
     proc = subprocess.run(shlex.split(cmd), capture_output=True, text=True) 
 
     if proc.returncode != 0:
         raise RuntimeError(f"Lighthouse CI failed: {proc.stderr}\n{proc.stdout}")
     
-    report_dir = lh_root / ".lighthouseci"
     reportfiles = list(report_dir.glob("*.json"))
 
     if not reportfiles:

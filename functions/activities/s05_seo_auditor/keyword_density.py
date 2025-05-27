@@ -23,14 +23,9 @@ def _analyze_keyword_density(text: str, keyword: str) -> tuple[int, int, float]:
         total: The total number of tokens in the text
         ratio: The ratio of the keyword to the total number of tokens
     """
-    tokens = list(token.surface for token in tokenizer.tokenize(text))
-    keyword_tokens = keyword.split()
-    total = len(tokens)
-    count = sum(
-        1 for i in range(total - len(keyword_tokens) + 1)
-        if tokens[i:i+len(keyword_tokens)] == keyword_tokens
-    )
-    ratio = count / total if total else 0.0
+    count = text.count(keyword)
+    total = len(text)
+    ratio = count * len(keyword) / total if total else 0.0
     return count, total, ratio
 
 
@@ -59,6 +54,7 @@ def _regenerate_with_keyword(text: str, keyword: str) -> str:
             )
         }
     ]
+    print(f"Regenerating with keyword: {keyword}")
     response = call_gpt(messages, 0.7)
     return response["text"]
 
@@ -68,6 +64,8 @@ def _regenerate_with_keyword(text: str, keyword: str) -> str:
 def ensure_keyword_density(text: str, keyword: str, min_density: float=0.01) -> tuple[str, float]:
     _, _, ratio = _analyze_keyword_density(text, keyword)
     if ratio < min_density:
+        print(f"Keyword density is too low: {ratio}")
         text = _regenerate_with_keyword(text, keyword)
         _, _, ratio = _analyze_keyword_density(text, keyword)
+    print(f"Keyword density: {ratio}")
     return text, ratio

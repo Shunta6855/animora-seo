@@ -24,17 +24,21 @@ def build_context(chunks: list[dict]) -> str:
 # ----------------------------------
 # 記事の Markdown を生成する関数
 # ----------------------------------
-def draft_to_markdown(draft: dict) -> str:
-    """
+def draft_to_markdown(draft: dict, intro: str) -> str:
+    """ 
     Convert a draft dictionary to a markdown string.
     
     Args:
         draft (dict): The draft object with title and sections.
-
+        intro (str): The introduction of the article.
+        
     Returns:
         str: Markdown-formatted article.
     """
     lines = [f"# {draft['title']}", ""]  # 大見出し（タイトル）
+    lines.append("")
+    lines.append(intro)
+    lines.append("")
 
     for h2 in draft["h2_list"]:
         lines.append(f"## {h2['h2']}")  # 中見出し（H2）

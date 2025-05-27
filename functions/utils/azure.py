@@ -11,6 +11,7 @@ from config.settings import (
     TEXT_EMBEDDING_DEPLOYMENT_NAME,
     AZURE_SEARCH_ENDPOINT,
     AZURE_SEARCH_KEY,
+    TITLE_INDEX_NAME,
     H2_INDEX_NAME,
     AZURE_VISION_ENDPOINT,
     AZURE_VISION_KEY,
@@ -35,11 +36,19 @@ embedding_client = AzureOpenAI(
     api_version=OPENAI_API_VERSION,
 )
 
+title_search_client = SearchClient(
+    endpoint=AZURE_SEARCH_ENDPOINT,
+    index_name=TITLE_INDEX_NAME,
+    credential=AzureKeyCredential(AZURE_SEARCH_KEY)
+)
+
 h2_search_client = SearchClient(
     endpoint=AZURE_SEARCH_ENDPOINT,
     index_name=H2_INDEX_NAME,
     credential=AzureKeyCredential(AZURE_SEARCH_KEY)
 )
+
+
 
 content_safety_client = ContentSafetyClient(
     endpoint=AZURE_VISION_ENDPOINT,

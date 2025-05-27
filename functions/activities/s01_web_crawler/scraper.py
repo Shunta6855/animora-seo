@@ -33,9 +33,23 @@ class ArticleScraper:
         with open(response_filename, "r") as response_file:
             response = json.load(response_file)
             docs = []
+            titles = []
             if "items" in response and len(response["items"]) > 0:
                 for item in response["items"]:
-                    title, url = item.get("title", ""), item.get("link", "")
+                    # タイトルの取得
+                    pagemap = item.get("pagemap", {})
+                    metatags = pagemap.get("metatags", [])
+                    if metatags:
+                        og_title = metatags[0].get("og:title", "")
+                        if og_title:
+                            titles.append({"id": str(uuid.uuid4()), "title": og_title})
+                        else:
+                            titles.append({"id": str(uuid.uuid4()), "title": item.get("title", "")})
+                    else:
+                        titles.append({"id": str(uuid.uuid4()), "title": item.get("title", "")})
+
+                    # H2-本文の取得
+                    url = item.get("link", "")
                     driver = self._init_driver()
                     try:
                         driver.get(url); time.sleep(2) # ページが完全に読み込まれるまで待機
@@ -50,7 +64,7 @@ class ArticleScraper:
                             })
                     finally:
                         driver.quit()
-            return docs
+            return titles, docs
     
     def _init_driver(self) -> webdriver.Chrome:
         """

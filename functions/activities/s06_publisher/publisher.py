@@ -5,7 +5,8 @@
 # ライブラリのインポート
 from __future__ import annotations
 
-import re
+from PIL import Image
+from io import BytesIO
 from datetime import datetime
 from pathlib import Path
 from typing import Sequence
@@ -17,8 +18,8 @@ from config.settings import BLOG_SAVE_DIR, IMAGE_SAVE_DIR
 # ----------------------------------
 class Publisher:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, slug: str) -> None:
+        self.slug = slug
 
     # ----------------------------------
     # エントリポイント
@@ -33,11 +34,10 @@ class Publisher:
         Returns:
             Information about the published article
         """
-        slug = self._slugify(audited["meta"]["title"]) # ex: my-first-article
-        mdx_path = self._materialize(audited, slug)
-        self._upload_images(slug, audited["images"])
+        mdx_path = self._materialize(audited)
+        self._upload_images(audited["images"])
         return {
-            "slug": slug,
+            "slug": self.slug,
             "mdx_path": str(mdx_path),
             "images": audited["images"],
         }
@@ -46,24 +46,24 @@ class Publisher:
     # ----------------------------------
     # 記事を .mdx として Astro ディレクトリ配下に書き出す
     # ----------------------------------
-    @staticmethod
-    def _materialize(audited: dict[str, object], slug: str) -> Path:
+    def _materialize(self, audited: dict[str, object]) -> Path:
         """
         Materialize the article into a .mdx file and save it to the Astro directory.
 
         Args:
             audited: The audited article
-            slug: The slug of the article
         """
+        cover_img = Path(audited["images"][0]["url"]).name.split("?")[0]
         front_matter = f'---\n'
         front_matter += f'title: "{audited["meta"]["title"]}"\n'
         front_matter += f'description: "{audited["meta"]["description"]}"\n'
         front_matter += f'pubDate: "{datetime.now().strftime("%Y-%m-%d")}"\n'
-        front_matter += f'slug: "{slug}"\n'
+        front_matter += f'slug: "{self.slug}"\n'
+        front_matter += f'img: "/public/images/blog/{self.slug}/{cover_img}.jpeg"\n'
         front_matter += f'---\n'
 
-        mdx_body = audited["markdown"] + "\n"
-        mdx_path = BLOG_SAVE_DIR / f"{slug}.mdx"
+        mdx_body = self._embed_images(audited["markdown"], audited["images"]) + "\n"
+        mdx_path = BLOG_SAVE_DIR / f"{self.slug}.mdx"
         mdx_path.write_text(front_matter + mdx_body, encoding="utf-8")
 
         return mdx_path
@@ -72,7 +72,7 @@ class Publisher:
     # ----------------------------------
     # 画像を Blob -> Astro ディレクトリ配下に書き出す
     # ----------------------------------
-    def _upload_images(self, slug: str, images: Sequence[dict[str, str]]) -> None:
+    def _upload_images(self, images: Sequence[dict[str, str]]) -> None:
         """
         Upload the images to the Astro directory.
 
@@ -82,19 +82,41 @@ class Publisher:
         """
         for img in images:
             name = Path(img["url"]).name.split("?")[0] or "image.png"
-            img_path = IMAGE_SAVE_DIR / name
-            raw = self._download_raw(img["url"])
-            img_path.write_bytes(raw)
-            img["url"] = f"/images/blog/{slug}/{name}"
 
+            image_dir = IMAGE_SAVE_DIR / self.slug
+            image_dir.mkdir(parents=True, exist_ok=True)
+
+            raw = self._download_raw(img["url"])
+            image = Image.open(BytesIO(raw)).convert("RGB")
+            
+            jpeg_path = image_dir / f"{name}.jpeg"
+            image.save(jpeg_path, "JPEG", quality=85)
+            img["url"] = f"/images/blog/{self.slug}/{name}.jpeg"
+
+    # ----------------------------------
+    # 画像を記事 .mdx に埋め込む
+    # ----------------------------------
+    def _embed_images(self, markdown: str, images: Sequence[dict[str, str]]) -> str:
+        """
+        Embed the images into the markdown.
+        """
+        lines = markdown.splitlines()
+        new_lines = []
+        image_index = 1
+
+        for line in lines:
+            new_lines.append(line)
+            if line.startswith("## ") and image_index < len(images):
+                img = Path(images[image_index]["url"]).name.split("?")[0]
+                alt = images[image_index]["alt"]
+                new_lines.append(f"![{alt}](/images/blog/{self.slug}/{img}.jpeg)")
+                image_index += 1
+        return "\n".join(new_lines)
+                
 
     # ----------------------------------
     # Helper Functions
     # ----------------------------------
-    @staticmethod
-    def _slugify(title: str) -> str:
-        return re.sub(r"[~\w\-]+", "-", title.lower()).strip("-")
-
     @staticmethod
     def _download_raw(url: str) -> bytes:
         import requests # lazy-import
