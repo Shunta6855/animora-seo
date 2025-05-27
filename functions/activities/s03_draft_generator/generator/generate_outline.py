@@ -3,11 +3,12 @@
 # ---------------------------------------------------------------------------------  #
 
 # ライブラリのインポート
+import json
 from pydantic import ValidationError
 from config.prompts import GEN_CONSTRUCTION_PROMPT
 from activities.s03_draft_generator.guardrail.schema import Outline
 from activities.s03_draft_generator.generator.common import build_context
-from activities.s03_draft_generator.search.client import top_chunks
+from activities.s03_draft_generator.search.client import top_title_chunks, top_h2_chunks
 from utils.azure import call_gpt
 
 # ----------------------------------
@@ -23,13 +24,16 @@ def generate_outline(keyword: str) -> dict:
     Returns:
         dict: The outline.
     """
-    chunks = top_chunks(keyword)
-    context = build_context(chunks)
+    title_chunks = top_title_chunks(keyword)
+    titles = [t["title"] for t in title_chunks]
+    h2_chunks = top_h2_chunks(keyword)
+    context = build_context(h2_chunks)
     messages = [
         GEN_CONSTRUCTION_PROMPT,
         {
             "role": "user", 
             "content": (
+                f"# Titles: {json.dumps(titles, ensure_ascii=False)}\n"
                 f"# Keyword: {keyword}\n"
                 f"# Context: {context}\n"
                 "上記の情報をもとに、記事本文をJSON形式で生成してください"

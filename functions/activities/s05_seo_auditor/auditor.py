@@ -5,7 +5,7 @@
 # ライブラリのインポート
 from __future__ import annotations
 
-import tempfile
+import tempfile, markdown
 from pathlib import Path
 from typing import Optional, Sequence, Any
     # Sequence: リスト、タプル、文字列などのシーケンス型
@@ -33,7 +33,7 @@ class SEOAuditor:
     # ----------------------------------
     def audit(
         self,
-        markdown: str,
+        markdown_text: str,
         outline: dict[str, Any],
         images: Optional[Sequence[dict[str, str]]] = None,
         do_lighthouse: bool = True,
@@ -42,7 +42,7 @@ class SEOAuditor:
         Audit the article.
         
         Args:
-            markdown: The markdown of the article
+            markdown_text: The markdown of the article
             outline: The outline of the article
             images: The images of the article
             do_lighthouse: Whether to do the lighthouse audit
@@ -50,21 +50,65 @@ class SEOAuditor:
         Returns:
             The result of the audit
         """
-        markdown, density = ensure_keyword_density(markdown, self.keyword, self.MIN_DENSITY)
-        title, description = gen_meta(outline, markdown)
+        markdown_text, density = ensure_keyword_density(markdown_text, self.keyword, self.MIN_DENSITY)
+        title, description = gen_meta(outline, markdown_text)
 
         lighthouse_metrics: dict[str, float] | None = None
         if do_lighthouse:
+            html_body = markdown.markdown(markdown_text)
+            full_html = self.wrap_html(title, html_body)
+
             with tempfile.TemporaryDirectory() as tmpdir:
                 html_path = Path(tmpdir) / "index.html"
-                html_path.write_text(markdown, encoding="utf-8")
+                html_path.write_text(full_html, encoding="utf-8")
                 lighthouse_metrics = run_lighthouse(html_path, self.lh_root)
 
         return {
-            "markdown": markdown,
+            "markdown": markdown_text,
             "images": images or [],
             "meta": {"title": title, "description": description},
             "keyword_density": density,
             "lighthouse": lighthouse_metrics,
         }
+    
+    # ----------------------------------
+    # html形式でラップする関数
+    # ----------------------------------
+    def wrap_html(self, title: str, body: str) -> str:
+        return f"""<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{title}">
+    <title>{title}</title>
+
+    <!-- ★ 1行追加: 空データURIの favicon で 404 を防止 -->
+    <link rel="icon" href="data:,"> 
+
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans JP', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            padding: 2rem;
+            max-width: 720px;
+            margin: auto;
+        }}
+        img {{
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 1rem auto;
+        }}
+        details {{
+            margin-top: 1rem;
+        }}
+    </style>
+</head>
+    <body>
+    {body}
+    </body>
+</html>
+"""
         

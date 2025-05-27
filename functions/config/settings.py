@@ -16,7 +16,7 @@ ARTICLE_STRUCTURE_DIR = "data/article_structure"
 ARTICLE_TEXT_DIR = "data/article_text"
 BASE_DIR = Path(__file__).resolve().parent.parent.parent # animalia-seo/
 BLOG_SAVE_DIR = BASE_DIR.parent / "animora-homepage" / "src" / "content" / "blog"
-IMAGE_SAVE_DIR = BASE_DIR.parent / "animora-homepage" / "public" / "images"
+IMAGE_SAVE_DIR = BASE_DIR.parent / "animora-homepage" / "public" / "images" / "blog"
 
 
 # ----------------------------------
@@ -27,6 +27,7 @@ _ = load_dotenv(find_dotenv())
 # --------- Creating RAG Index --------- #
 AZURE_SEARCH_ENDPOINT = os.getenv("AZURE_SEARCH_ENDPOINT")
 AZURE_SEARCH_KEY = os.getenv("AZURE_SEARCH_KEY")
+TITLE_INDEX_NAME = os.getenv("TITLE_INDEX_NAME")
 H2_INDEX_NAME = os.getenv("H2_INDEX_NAME")
 
 # --------- Draft Generation --------- #
@@ -56,7 +57,7 @@ HEADERS = {
 # ----------------------------------
 # Animora説明文(RAG用)
 # ----------------------------------
-animora_doc = {
+animora_doc = [{
     "id": "animora-doc",
     "heading": "animora",
     "content": (
@@ -67,4 +68,4 @@ animora_doc = {
         "- 画像投稿機能: ユーザーは自由にペットの写真を投稿できるほか、1日1回「登録しているペットに関するお題(タスク)」が送られ、そのテーマに沿った写真を投稿することが求められます。"
         "- コミュニティ機能: テーマフォトコンテスト、ペット飼育に関するQ&A、散歩ルートの共有などの機能を順次実装する予定です。"
     )
-}
+}]

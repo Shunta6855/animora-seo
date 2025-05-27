@@ -13,12 +13,12 @@ from activities.s01_web_crawler.get_serp import GoogleSearcher
 from activities.s01_web_crawler.scraper import ArticleScraper
 
 # ----- s02: RAG indexer ----------------------------------------- #
-from utils.azure import h2_search_client
+from utils.azure import title_search_client, h2_search_client
 from activities.s02_rag_indexer.create_rag_indexer import SearchUploader
 
 # ----- s03: Draft Generator ------------------------------------ #
 from activities.s03_draft_generator.generator.generate_outline import validate_outline
-from activities.s03_draft_generator.generator.generate_draft import generate_draft
+from activities.s03_draft_generator.generator.generate_draft import generate_intro, generate_draft
 
 # ----- s04: Image Picker --------------------------------------- #
 from utils.azure import embedding_client, content_safety_client
@@ -54,20 +54,23 @@ def ac_get_serp(keyword: str) -> str:
 @app.activity_trigger(input_name="keyword", activity="ac_scrape_articles")
 def ac_scrape_articles(keyword: str) -> List[Dict[str, Any]]:
     scraper = ArticleScraper()
-    docs = scraper.scrape(keyword)
+    titles, docs = scraper.scrape(keyword)
     logger.info(f"[ac_scrape_articles] type(docs)={type(docs)}, "
                 f"len(docs)={len(docs) if hasattr(docs, '__len__') else 'n/a'}")
     if docs:
         logger.info(f"[ac_scrape_articles] docs:{docs}")
 
-    return docs
+    return titles, docs
 
 
-@app.activity_trigger(input_name="docs", activity="ac_upload_chunks")
-def ac_upload_chunks(docs: List[Dict[str, Any]]):
-    uploader = SearchUploader(h2_search_client)
-    uploader.upload_h2_docs(docs)
-    uploader.upload_animora_docs()
+@app.activity_trigger(input_name="payload", activity="ac_upload_chunks")
+def ac_upload_chunks(payload: Dict[str, Any]):
+    title_uploader = SearchUploader(title_search_client, payload["cache_path"])
+    title_uploader.upload_titles(payload["titles"])
+
+    h2_uploader = SearchUploader(h2_search_client, payload["cache_path"])
+    h2_uploader.upload_h2_docs(payload["docs"])
+    h2_uploader.upload_animora_docs()
 
 
 @app.activity_trigger(input_name="keyword", activity="ac_generate_outline")
@@ -77,7 +80,8 @@ def ac_generate_outline(keyword: str) -> dict:
 
 @app.activity_trigger(input_name="payload", activity="ac_generate_draft")
 def ac_generate_draft(payload: Dict[str, Any]) -> Dict[str, Any]:
-    return generate_draft(payload["keyword"], payload["title"], payload["h2_list"])
+    intro = generate_intro(payload["keyword"], payload["outline"])
+    return generate_draft(payload["keyword"], intro, payload["title"], payload["h2_list"])
 
 
 @app.activity_trigger(input_name="payload", activity="ac_pick_images")
@@ -89,13 +93,13 @@ def ac_pick_images(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
 @app.activity_trigger(input_name="payload", activity="ac_audit_article")
 def ac_audit_article(payload: Dict[str, Any]) -> Dict[str, Any]:
     auditor = SEOAuditor(payload["keyword"])
-    return auditor.audit(payload["markdown"], payload["outline"], payload["images"])
+    return auditor.audit(payload["markdown_text"], payload["outline"], payload["images"])
 
 
-@app.activity_trigger(input_name="audited", activity="ac_publish_article")
-def ac_publish_article(audited: Dict[str, Any]) -> Dict[str, Any]:
-    publisher = Publisher()
-    return publisher.publish(audited)
+@app.activity_trigger(input_name="payload", activity="ac_publish_article")
+def ac_publish_article(payload: Dict[str, Any]) -> Dict[str, Any]:
+    publisher = Publisher(payload["slug"])
+    return publisher.publish(payload["audited"])
 
 
 __all__ = ["app"]

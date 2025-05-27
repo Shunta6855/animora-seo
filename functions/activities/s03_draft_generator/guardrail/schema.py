@@ -17,7 +17,7 @@ class Section(BaseModel):
 
 class Outline(BaseModel):
     title: str = Field(..., max_length=32)
-    h2_list: Annotated[list[Section], Field(min_items=3, max_items=6)]
+    h2_list: Annotated[list[Section], Field(min_items=3, max_items=3)]
     class Config:
         extra = "forbid"
 
@@ -29,7 +29,7 @@ class SectionAll(BaseModel):
     @field_validator("content_list")
     def content_length(cls, v):
         for content in v:
-            if not (300 <= len(content) <= 2_500):
+            if not (200 <= len(content) <= 2_500):
                 raise ValueError("content length must be between 300 and 2500")
         return v
 
@@ -38,7 +38,7 @@ class SectionAll(BaseModel):
 
 class Draft(BaseModel):
     title: str = Field(..., max_length=32)
-    h2_list: Annotated[list[SectionAll], Field(min_items=3, max_items=6)]
+    h2_list: Annotated[list[SectionAll], Field(min_items=3, max_items=3)]
     
     @field_validator("h2_list")
     def unique_headings(cls, v):

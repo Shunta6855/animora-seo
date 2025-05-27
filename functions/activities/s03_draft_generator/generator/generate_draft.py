@@ -4,8 +4,8 @@
 
 # ライブラリのインポート
 import json
-from config.prompts import GEN_DRAFT_PROMPT
-from activities.s03_draft_generator.search.client import top_chunks
+from config.prompts import GEN_INTRO_PROMPT, GEN_DRAFT_PROMPT
+from activities.s03_draft_generator.search.client import top_h2_chunks
 from activities.s03_draft_generator.guardrail.schema import Draft, SectionAll, Section
 from activities.s03_draft_generator.guardrail.safety import safe_text
 from activities.s03_draft_generator.guardrail.grounding import grounded
@@ -28,7 +28,7 @@ def generate_section(h2: str, h3_list: list[str], keyword: str) -> dict:
     Returns:
         dict: The generated section.
     """
-    chunks = top_chunks(f"{keyword} {h2}")
+    chunks = top_h2_chunks(f"{keyword} {h2}")
     context = build_context(chunks)
     messages = [
         GEN_DRAFT_PROMPT,
@@ -60,16 +60,52 @@ def generate_section(h2: str, h3_list: list[str], keyword: str) -> dict:
     #     raise ValueError("Ungrounded content")
     
     return section
+
+# ----------------------------------
+# 導入文の生成
+# ----------------------------------
+def generate_intro(keyword: str, outline: dict) -> str:
+    """
+    Generate an introduction for an article based on a keyword and outline.
+
+    Args:
+        keyword (str): The keyword to generate the introduction for.
+        outline (dict): The outline of the article.
+
+    Returns:
+        str: The generated introduction.
+    """
+    lines = [f"■ {outline['title']}"]  # 記事タイトルを最初に
+
+    for section in outline["h2_list"]:
+        lines.append(f"\n● {section['h2']}")
+        for h3 in section["h3_list"]:
+            lines.append(f"- {h3}")
+    outline = "\n".join(lines)
+
+    messages = [
+        GEN_INTRO_PROMPT,
+        {
+            "role": "user",
+            "content": (
+                f"# Keyword: {keyword}\n"
+                f"# Outline: {outline}\n\n"
+                "上記の情報をもとに、導入文を生成してください"
+            )
+        }
+    ]
+    return call_gpt(messages, 0.7)["text"]
     
 # ----------------------------------
 # 記事本文の生成
 # ----------------------------------
-def generate_draft(keyword: str, title: str, h2_list: list[Section]) -> dict:
+def generate_draft(keyword: str, intro: str, title: str, h2_list: list[Section]) -> dict:
     """
     Generate a draft of an article based on a keyword and outline.
 
     Args:
         keyword (str): The keyword to generate the article for.
+        intro (str): The introduction of the article.
         title (str): The title of the article.
         h2_list (list[Section]): The list of sections for the article.
 
@@ -91,6 +127,6 @@ def generate_draft(keyword: str, title: str, h2_list: list[Section]) -> dict:
     Draft(**draft_dict)
 
     # Convert to Markdown
-    draft = draft_to_markdown(draft_dict)
+    draft = draft_to_markdown(draft_dict, intro)
 
     return draft

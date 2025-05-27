@@ -15,12 +15,18 @@ async def run_pipeline(
     client: df.DurableOrchestrationClient
 ) -> func.HttpResponse:
     # JSON ボディ or クエリ文字列からキーワード取得
-    keyword = req.get_json() or req.params.get("keyword")
+    keyword = req.params.get("keyword")
+    slug = req.params.get("slug")
     if not keyword:
         return func.HttpResponse("keyword missing", status_code=400)
+    if not slug:
+        return func.HttpResponse("slug missing", status_code=400)
     
     # ここで await して文字列の ID を取得
-    instance_id = await client.start_new("orchestrator", None, keyword)
+    instance_id = await client.start_new("orchestrator", None, {
+        "keyword": keyword,
+        "slug": slug,
+    })
     return client.create_check_status_response(req, instance_id)
 
 __all__ = ["app"]
