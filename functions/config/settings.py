@@ -42,17 +42,21 @@ CS_KEY = os.getenv("AZURE_CONTENT_SAFETY_KEY")
 GROUND_ENDPOINT = CS_ENDPOINT # 同じリージョン内であれば同一
 
 # --------- Image Picker --------- #
-UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 AZURE_VISION_ENDPOINT = os.getenv("AZURE_VISION_ENDPOINT")
 AZURE_VISION_KEY = os.getenv("AZURE_VISION_KEY")
 TEXT_EMBEDDING_DEPLOYMENT_NAME = os.getenv("TEXT_EMBEDDING_DEPLOYMENT_NAME")
+
+# Unsplash
 UNSPLASH_SEARCH_URL = "https://api.unsplash.com/search/photos"
-HEADERS = {
-    "Accept-Version": "v1",
-    "Authorization": f"Client-ID {UNSPLASH_ACCESS_KEY}"
-}
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
 
+# Pexel
+PEXEL_API_KEY = os.getenv("PEXEL_API_KEY")
+PEXEL_SEARCH_URL = "https://api.pexels.com/v1/search"
 
+# Pixabay
+PIXABAY_API_KEY = os.getenv("PIXABAY_API_KEY")
+PIXABAY_SEARCH_URL = "https://pixabay.com/api/"
 
 # ----------------------------------
 # Animora説明文(RAG用)

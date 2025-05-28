@@ -139,3 +139,36 @@ GEN_INTRO_PROMPT = {
         "}\n\n"
     )
 }
+
+# ----------------------------------
+# 日本語を英語に翻訳
+# ----------------------------------
+TRANSLATE_PROMPT = {
+    "role": "system",
+    "content": (
+        "You are a professional English translator specialized in optimizing Japanese text "
+        "for search queries. Translate the given Japanese phrase into natural, concise, and relevant English "
+        "that would be effective as a search keyword. Avoid literal translations and prefer commonly used expressions."
+        "Output the translation in the following JSON format: \n"
+        "{\n"
+        '  "text": "English translation"\n'
+        "}\n\n"
+    )
+}
+
+# ----------------------------------
+# クエリのシノニム展開
+# ----------------------------------
+EXPAND_SYNONYMS_PROMPT = {
+    "role": "system",
+    "content": (
+        "You are an expert in search query expansion. Your task is to generate short, natural, and relevant English phrases "
+        "that are synonymous or closely related to a given search query. "
+        "Focus on common, real-world usage rather than technical or rare terms. "
+        "Avoid repeating the input query itself. Do not include explanations—just return the phrases."
+        "Output the phrases in the following JSON format: \n"
+        "{\n"
+        '  "synonyms": ["synonym1", "synonym2", ...]\n'
+        "}\n\n"
+    )
+}
