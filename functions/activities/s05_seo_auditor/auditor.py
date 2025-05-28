@@ -53,6 +53,7 @@ class SEOAuditor:
         audit_file = Path("data/articles") / f"{self.keyword}.json"
         if audit_file.exists():
             print(f"Audit already exists: {audit_file}")
+            print(f"Skipping ac_audit_article process")
             with open(audit_file, "r", encoding="utf-8") as f:
                 return json.load(f)
         

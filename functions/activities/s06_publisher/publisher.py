@@ -57,9 +57,9 @@ class Publisher:
         front_matter = f'---\n'
         front_matter += f'title: "{audited["meta"]["title"]}"\n'
         front_matter += f'description: "{audited["meta"]["description"]}"\n'
-        front_matter += f'pubDate: "{datetime.now().strftime("%Y-%m-%d")}"\n'
+        front_matter += f'pubDate: {datetime.now().strftime("%Y-%m-%d")}\n'
         front_matter += f'slug: "{self.slug}"\n'
-        front_matter += f'img: "/public/images/blog/{self.slug}/{cover_img}.jpeg"\n'
+        front_matter += f'img: "/images/blog/{self.slug}/{cover_img}.jpeg"\n'
         front_matter += f'---\n'
 
         mdx_body = self._embed_images(audited["markdown"], audited["images"]) + "\n"

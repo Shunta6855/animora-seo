@@ -24,6 +24,7 @@ class ImagePicker:
         cache_path = self.cache_dir / f"{keyword}.json"
         if cache_path.exists():
             print(f"Image already exists: {cache_path}")
+            print(f"Skipping ac_pick_images process")
             with open(cache_path, "r", encoding="utf-8") as f:
                 return json.load(f)
         

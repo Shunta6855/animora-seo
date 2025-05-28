@@ -116,6 +116,7 @@ def generate_draft(keyword: str, intro: str, title: str, h2_list: list[Section])
     draft_file = Path("data/drafts") / f"{keyword}.md"
     if draft_file.exists():
         print(f"Draft already exists: {draft_file}")
+        print(f"Skipping ac_generate_draft process")
         return draft_file.read_text()
     
     # dict -> Section オブジェクトに変換

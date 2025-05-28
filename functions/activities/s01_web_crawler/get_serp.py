@@ -36,6 +36,8 @@ class GoogleSearcher:
         """
         save_path = self.response_dir / f"{keyword}_response.json"
         if save_path.exists():
+            print(f"SERP response already exists")
+            print(f"Skipping ac_get_serp process")
             print(f"Loading cached response from {save_path}")
             with open(save_path, "r", encoding="utf-8") as f:
                 return json.load(f)
