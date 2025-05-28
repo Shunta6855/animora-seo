@@ -29,15 +29,19 @@ class ArticleScraper:
         Returns:
             A list of dictionaries containing the section title and content
         """
+        titles = None
+        docs = None
         title_file = Path("data/titles") / f"{keyword}.json"
         if title_file.exists():
             print(f"Titles already exists: {title_file}")
+            print(f"Skipping ac_scrape_articles process")
             with open(title_file, "r", encoding="utf-8") as f:
                 titles = json.load(f)
 
         doc_file = Path("data/docs") / f"{keyword}.json"
         if doc_file.exists():
             print(f"Docs already exists: {doc_file}")
+            print(f"Skipping ac_scrape_articles process")
             with open(doc_file, "r", encoding="utf-8") as f:
                 docs = json.load(f)
         if titles and docs:

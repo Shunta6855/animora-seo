@@ -61,6 +61,7 @@ def validate_outline(keyword: str) -> dict:
     outline_file = Path("data/outlines") / f"{keyword}.json"
     if outline_file.exists():
         print(f"Outline already exists: {outline_file}")
+        print(f"Skipping ac_generate_outline process")
         with open(outline_file, "r", encoding="utf-8") as f:
             return json.load(f)
     

@@ -21,8 +21,7 @@ from activities.s03_draft_generator.generator.generate_outline import validate_o
 from activities.s03_draft_generator.generator.generate_draft import generate_intro, generate_draft
 
 # ----- s04: Image Picker --------------------------------------- #
-from utils.azure import embedding_client, content_safety_client
-from activities.s04_image_picker.obtain_picture import ImagePicker
+from activities.s04_image_picker.core import ImagePicker
 
 # ----- s05: SEO Auditor ---------------------------------------- #
 from activities.s05_seo_auditor.auditor import SEOAuditor
@@ -86,7 +85,7 @@ def ac_generate_draft(payload: Dict[str, Any]) -> Dict[str, Any]:
 
 @app.activity_trigger(input_name="payload", activity="ac_pick_images")
 def ac_pick_images(payload: Dict[str, Any]) -> List[Dict[str, Any]]:
-    picker = ImagePicker(embedding_client, content_safety_client)
+    picker = ImagePicker()
     return picker.pick_images(payload["keyword"], payload["max_images"])
 
 
