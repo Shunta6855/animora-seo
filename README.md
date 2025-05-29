@@ -1,6 +1,8 @@
 # Animora SEO Article Generation System
 
-![animora-blog](/images/animora-blog.png)
+<p align="center">
+  <img src="images/animora-blog.png" alt="Animora Blog Interface" width=70%/>
+</p>
 
 Automated end-to-end system that **crawls, writes, audits, and publishes SEO-optimised articles** for the pet-photo SNS **Animora**. \
 Written in **Python** and provisioned on **Azure** with **Terraform**, the pipeline demonstrates production-grade MLOps / LLMOps practices.
@@ -13,6 +15,11 @@ Written in **Python** and provisioned on **Azure** with **Terraform**, the pipel
     <img src=https://img.shields.io/badge/-OpenAI-412991.svg?logo=openai&style=for-the-badge>
     <img src="https://img.shields.io/badge/-Google_Search-4285F4.svg?logo=google&logoColor=white&style=for-the-badge" />
     <img src="https://img.shields.io/badge/-Lighthouse-28A745.svg?logo=googlechrome&logoColor=white&style=for-the-badge" />
+</p>
+
+## System Architecture
+<p align="center">
+  <img src="images/architecture.png" alt="System Architecture" />
 </p>
 
 ## Key Features

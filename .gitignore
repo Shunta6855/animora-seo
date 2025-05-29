@@ -28,3 +28,4 @@ functions/local.settings.json
 # Terraform lock file
 .terraform.lock.hcl
 
+.DS_Store
